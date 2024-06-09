@@ -16,19 +16,19 @@ public:
     Person(string nama = "", int umur = 0, string asal = "", int nilai = 0)
         : Nama(nama), Umur(umur), Asal(asal), Nilai(nilai) {}
 
-    string getNama() const { return Nama; }
+    string getNama() { return Nama; }
     void setNama(string nama) { Nama = nama; }
 
-    int getUmur() const { return Umur; }
+    int getUmur() { return Umur; }
     void setUmur(int umur) { Umur = umur; }
 
-    string getAsal() const { return Asal; }
+    string getAsal() { return Asal; }
     void setAsal(string asal) { Asal = asal; }
 
-    int getNilai() const { return Nilai; }
+    int getNilai() { return Nilai; }
     void setNilai(int nilai) { Nilai = nilai; }
 
-    virtual void display() const {
+    virtual void display() {
         cout << "Nama  : " << Nama << endl;
         cout << "Umur  : " << Umur << endl;
         cout << "Asal  : " << Asal << endl;
@@ -45,13 +45,13 @@ public:
     Mahasiswa(string nama = "", int umur = 0, string asal = "", int nilai = 0, int nrp = 0, string departemen = "Unknown")
         : Person(nama, umur, asal, nilai), NRP(nrp), Departemen(departemen) {}
 
-    int getNRP() const { return NRP; }
+    int getNRP() { return NRP; }
     void setNRP(int nrp) { NRP = nrp; }
 
-    string getDepartemen() const { return Departemen; }
+    string getDepartemen() { return Departemen; }
     void setDepartemen(string departemen) { Departemen = departemen; }
 
-    void display() const override {
+    void display() override {
         Person::display();
         cout << "NRP        : " << NRP << endl;
         cout << "Departemen : " << Departemen << endl;
@@ -91,7 +91,7 @@ public:
         p.push_back(Person(nama, umur, asal, nilai));
     }
 
-    void display(const vector<Person> &p) const {
+    void display(vector<Person> &p) {
         if (p.empty()) {
             cout << "Tidak ada data." << endl;
             return;
@@ -105,28 +105,32 @@ public:
     }
 
     void convertToMahasiswa(vector<Person> &p, vector<Mahasiswa> &m, int minimum) {
-        for (auto it = p.begin(); it != p.end(); ) {
-            if (it->getNilai() >= minimum) {
+        for (int i = 0; i < p.size(); ) {
+            if (p[i].getNilai() >= minimum) {
                 int nrp;
-                cout << "Masukkan NRP untuk " << it->getNama() << ": ";
+                cout << "Masukkan NRP untuk " << p[i].getNama() << ": ";
                 while (!(cin >> nrp)) {
                     cin.clear();
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     cout << "Masukkan NRP dalam bentuk angka. Coba lagi: ";
                 }
 
-                bool nrpExists = any_of(m.begin(), m.end(), [nrp](const Mahasiswa &mhs) {
-                    return mhs.getNRP() == nrp;
-                });
+                bool nrpExists = false;
+                for (int j = 0; j < m.size(); j++) {
+                    if (m[j].getNRP() == nrp) {
+                        nrpExists = true;
+                        break;
+                    }
+                }
 
                 if (nrpExists) {
                     cout << "NRP " << nrp << " sudah ada. Coba lagi." << endl;
                 } else {
-                    m.push_back(Mahasiswa(it->getNama(), it->getUmur(), it->getAsal(), it->getNilai(), nrp, "Unknown"));
-                    it = p.erase(it);
+                    m.push_back(Mahasiswa(p[i].getNama(), p[i].getUmur(), p[i].getAsal(), p[i].getNilai(), nrp, "Unknown"));
+                    p.erase(p.begin() + i);
                 }
             } else {
-                ++it;
+                i++;
             }
         }
     }
@@ -138,14 +142,17 @@ public:
         cin >> nrp;
         cin.ignore();
 
-        auto it = find_if(m.begin(), m.end(), [nrp](const Mahasiswa &mhs) {
-            return mhs.getNRP() == nrp;
-        });
+        int i;
+        for (i = 0; i < m.size(); i++) {
+            if (m[i].getNRP() == nrp) {
+                break;
+            }
+        }
 
-        if (it != m.end()) {
+        if (i != m.size()) {
             cout << "Masukkan Departemen baru: ";
             getline(cin, departemen);
-            it->setDepartemen(departemen);
+            m[i].setDepartemen(departemen);
             cout << "Departemen berhasil diupdate." << endl;
         } else {
             cout << "Mahasiswa dengan NRP " << nrp << " tidak ditemukan." << endl;
@@ -158,11 +165,14 @@ public:
         cin.ignore();
         getline(cin, nama);
 
-        auto it = find_if(p.begin(), p.end(), [nama](const Person &person) {
-            return person.getNama() == nama;
-        });
+        int i;
+        for (i = 0; i < p.size(); i++) {
+            if (p[i].getNama() == nama) {
+                break;
+            }
+        }
 
-        if (it != p.end()) {
+        if (i != p.size()) {
             string newNama, asal;
             int umur, nilai;
             cout << "Masukkan Nama baru: ";
@@ -183,10 +193,10 @@ public:
                 cout << "Masukkan nilai dalam bentuk angka. Coba lagi: ";
             }
 
-            it->setNama(newNama);
-            it->setUmur(umur);
-            it->setAsal(asal);
-            it->setNilai(nilai);
+            p[i].setNama(newNama);
+            p[i].setUmur(umur);
+            p[i].setAsal(asal);
+            p[i].setNilai(nilai);
 
             cout << "Person berhasil diupdate." << endl;
         } else {
@@ -200,11 +210,14 @@ public:
         cin >> nrp;
         cin.ignore();
 
-        auto it = find_if(m.begin(), m.end(), [nrp](const Mahasiswa &mhs) {
-            return mhs.getNRP() == nrp;
-        });
+        int i;
+        for (i = 0; i < m.size(); i++) {
+            if (m[i].getNRP() == nrp) {
+                break;
+            }
+        }
 
-        if (it != m.end()) {
+        if (i != m.size()) {
             string newNama, asal, departemen;
             int umur, nilai;
             cout << "Masukkan Nama baru: ";
@@ -228,11 +241,11 @@ public:
             cin.ignore();
             getline(cin, departemen);
 
-            it->setNama(newNama);
-            it->setUmur(umur);
-            it->setAsal(asal);
-            it->setNilai(nilai);
-            it->setDepartemen(departemen);
+            m[i].setNama(newNama);
+            m[i].setUmur(umur);
+            m[i].setAsal(asal);
+            m[i].setNilai(nilai);
+            m[i].setDepartemen(departemen);
 
             cout << "Mahasiswa berhasil diupdate." << endl;
         } else {
@@ -240,7 +253,7 @@ public:
         }
     }
 
-    void displayMahasiswa(const vector<Mahasiswa> &m) const {
+    void displayMahasiswa(vector<Mahasiswa> &m) {
         if (m.empty()) {
             cout << "Tidak ada data." << endl;
             return;
@@ -253,7 +266,7 @@ public:
         }
     }
 
-    void displayNonMahasiswa(const vector<Person> &p) const {
+    void displayNonMahasiswa(vector<Person> &p) {
         if (p.empty()) {
             cout << "Tidak ada data." << endl;
             return;
@@ -266,16 +279,16 @@ public:
         }
     }
 
-    void filterByMinNilai(const vector<Person> &p, int minNilai) const {
+    void filterByMinNilai(vector<Person> &p, int minNilai) {
         if (p.empty()) {
             cout << "Tidak ada data." << endl;
             return;
         }
 
         vector<Person> filtered;
-        for (const auto &person : p) {
-            if (person.getNilai() >= minNilai) {
-                filtered.push_back(person);
+        for (int i = 0; i < p.size(); i++) {
+            if (p[i].getNilai() >= minNilai) {
+                filtered.push_back(p[i]);
             }
         }
 
@@ -285,8 +298,8 @@ public:
         }
 
         cout << "Person dengan nilai di atas " << minNilai << ":" << endl;
-        for (const auto &person : filtered) {
-            person.display();
+        for (int i = 0; i < filtered.size(); i++) {
+            filtered[i].display();
             cout << endl;
         }
     }
