@@ -413,10 +413,10 @@ public:
 
 bool authenticate()
 {
-    const string correctPassword = "FPASIK";
+    string correctPassword = "FPASIK";
     string inputPassword;
     int attempts = 0;
-    const int maxAttempts = 3;
+    int maxAttempts = 3;
 
     while (attempts < maxAttempts)
     {
